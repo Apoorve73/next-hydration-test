@@ -2,17 +2,7 @@ import React from 'react';
 import { useGetLessonDataQuery } from '@/services/Lessons';
 
 const ProgressTracker: React.FC = () => {
-  // Add error boundary for RTK Query
-  let data, loading, error;
-  try {
-    const queryResult = useGetLessonDataQuery('language-models-intro');
-    data = queryResult.data;
-    loading = queryResult.isLoading;
-    error = queryResult.error;
-  } catch (e) {
-    console.error('RTK Query error in ProgressTracker:', e);
-    return <div style={{ padding: '16px', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '6px' }}>Error loading progress data.</div>;
-  }
+  const { data, isLoading: loading, error } = useGetLessonDataQuery('language-models-intro');
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);

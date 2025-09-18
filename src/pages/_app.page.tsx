@@ -4,9 +4,7 @@ import { Provider } from 'react-redux';
 import { wrapper } from '@/store';
 
 function App({ Component, pageProps }: AppProps) {
-  console.log('App rendering with pageProps:', pageProps);
   const { store, props } = wrapper.useWrappedStore(pageProps);
-  console.log('Store and props from wrapper:', { store: !!store, props });
   
   return (
     <>
