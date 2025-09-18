@@ -10,9 +10,8 @@ function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   
-  // Only use Redux for lesson pages that need it
-  const needsRedux = router.pathname.startsWith('/lesson/');
-  const { store, props } = needsRedux ? wrapper.useWrappedStore(pageProps) : { store: null, props: pageProps };
+  // Always use Redux wrapper - the conditional approach was causing issues
+  const { store, props } = wrapper.useWrappedStore(pageProps);
 
   useEffect(() => {
     const handleStart = (url: string) => {
@@ -152,17 +151,10 @@ function App({ Component, pageProps }: AppProps) {
         }
       `}</style>
       
-      {needsRedux && store ? (
-        <Provider store={store}>
-          {loading && <PageLoader />}
-          <Component {...pageProps} />
-        </Provider>
-      ) : (
-        <>
-          {loading && <PageLoader />}
-          <Component {...pageProps} />
-        </>
-      )}
+      <Provider store={store}>
+        {loading && <PageLoader />}
+        <Component {...pageProps} />
+      </Provider>
     </>
   );
 }
