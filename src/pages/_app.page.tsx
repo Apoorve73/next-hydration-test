@@ -1,8 +1,10 @@
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+import { Provider } from 'react-redux';
 import { wrapper } from '@/store';
 
 function App({ Component, pageProps }: AppProps) {
+  const { store, props } = wrapper.useWrappedStore(pageProps);
   return (
     <>
       <Head>
@@ -120,9 +122,11 @@ function App({ Component, pageProps }: AppProps) {
         }
       `}</style>
       
-      <Component {...pageProps} />
+      <Provider store={store}>
+        <Component {...props.pageProps} />
+      </Provider>
     </>
   );
 }
 
-export default wrapper.withRedux(App);
+export default App;
