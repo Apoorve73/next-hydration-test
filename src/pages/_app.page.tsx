@@ -3,15 +3,22 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { wrapper } from '@/store';
 import PageLoader from '@/components/PageLoader';
 
-function App({ Component, pageProps }: AppProps) {
+function App({ Component, ...rest }: AppProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   
-  // Always use Redux wrapper - the conditional approach was causing issues
-  const { store, props } = wrapper.useWrappedStore(pageProps);
+  // Follow SkillUp Frontend pattern exactly
+  const {
+    store,
+    props: { pageProps },
+  } = wrapper.useWrappedStore(rest);
+
+  // Setup RTK Query listeners (missing from our implementation)
+  setupListeners(store.dispatch);
 
   useEffect(() => {
     const handleStart = (url: string) => {
@@ -20,7 +27,7 @@ function App({ Component, pageProps }: AppProps) {
         setLoading(true);
       }
     };
-    
+  
     const handleComplete = () => setLoading(false);
 
     router.events.on('routeChangeStart', handleStart);
