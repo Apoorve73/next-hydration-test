@@ -13,7 +13,7 @@ export const rootApi = createApi({
   /* istanbul ignore next */
   extractRehydrationInfo(action, { reducerPath }) {
     if (action.type === HYDRATE) {
-      return action.payload[reducerPath];
+      return (action.payload as any)?.[reducerPath];
     }
 
     return undefined;

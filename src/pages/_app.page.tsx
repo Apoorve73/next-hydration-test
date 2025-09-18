@@ -3,7 +3,6 @@ import Head from 'next/head';
 import { Provider } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { setupListeners } from '@reduxjs/toolkit/query';
 import { wrapper } from '@/store';
 import PageLoader from '@/components/PageLoader';
 
@@ -17,8 +16,15 @@ function App({ Component, ...rest }: AppProps) {
     props: { pageProps },
   } = wrapper.useWrappedStore(rest);
 
-  // Setup RTK Query listeners (missing from our implementation)
-  setupListeners(store.dispatch);
+  // Setup RTK Query listeners - but only load the heavy parts when needed
+  useEffect(() => {
+    // Only setup listeners for lesson pages to avoid loading unnecessary code
+    if (router.pathname.startsWith('/lesson/')) {
+      import('@reduxjs/toolkit/query').then(({ setupListeners }) => {
+        setupListeners(store.dispatch);
+      });
+    }
+  }, [router.pathname, store.dispatch]);
 
   useEffect(() => {
     const handleStart = (url: string) => {
