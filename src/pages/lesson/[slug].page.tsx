@@ -10,7 +10,7 @@ import { wrapper } from '@/store';
 import { lessonsAPI } from '@/services/Lessons';
 
 interface LessonPageProps {
-  lesson: LessonContent;
+  lesson: LessonContent | null;
 }
 
 // MDX components that will be available in the markdown content
@@ -22,6 +22,21 @@ const mdxComponents = {
 };
 
 const LessonPage: React.FC<LessonPageProps> = ({ lesson }) => {
+  // Handle case where lesson is not found
+  if (!lesson) {
+    return (
+      <div style={{ 
+        maxWidth: '800px', 
+        margin: '0 auto', 
+        padding: '20px',
+        textAlign: 'center'
+      }}>
+        <h1>Lesson Not Found</h1>
+        <p>The requested lesson could not be found.</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
       maxWidth: '800px', 
@@ -197,16 +212,8 @@ export const getServerSideProps: GetServerSideProps = wrapper.getServerSideProps
       };
     }
 
-    // Prefetch lesson data server-side using RTK Query
-    try {
-      // This will populate the RTK Query cache on the server
-      await store.dispatch(lessonsAPI.endpoints.getLessonData.initiate(slug));
-    } catch (error) {
-      console.error('Failed to prefetch lesson data server-side:', error);
-    }
-
-    // Wait for all running queries to complete
-    await Promise.all(store.dispatch(lessonsAPI.util.getRunningQueriesThunk()));
+    // Skip server-side prefetching for now - RTK Query will handle client-side
+    // The components will fetch data using RTK Query hooks on the client
 
     return {
       props: {

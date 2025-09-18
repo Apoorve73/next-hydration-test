@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { serialize } from 'next-mdx-remote/serialize';
@@ -19,7 +19,7 @@ const contentDirectory = path.join(process.cwd(), 'content');
 export async function getLessonBySlug(slug: string): Promise<LessonContent | null> {
   try {
     const filePath = path.join(contentDirectory, `${slug}.mdx`);
-    const fileContents = fs.readFileSync(filePath, 'utf8');
+    const fileContents = readFileSync(filePath, 'utf8');
     
     const { data, content } = matter(fileContents);
     
@@ -48,7 +48,7 @@ export async function getLessonBySlug(slug: string): Promise<LessonContent | nul
 
 export function getAllLessonSlugs(): string[] {
   try {
-    const fileNames = fs.readdirSync(contentDirectory);
+    const fileNames = readdirSync(contentDirectory);
     return fileNames
       .filter(name => name.endsWith('.mdx'))
       .map(name => name.replace(/\.mdx$/, ''));
