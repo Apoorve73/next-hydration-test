@@ -6,8 +6,18 @@ interface InteractiveQuizButtonProps {
 }
 
 const InteractiveQuizButton: React.FC<InteractiveQuizButtonProps> = ({ onComplete }) => {
-  const { data: currentLesson } = useGetLessonDataQuery('language-models-intro');
-  const [updateProgress, { isLoading: loading }] = useUpdateLessonProgressMutation();
+  // Add error boundary for RTK Query
+  let currentLesson, updateProgress, loading;
+  try {
+    const lessonQuery = useGetLessonDataQuery('language-models-intro');
+    currentLesson = lessonQuery.data;
+    const [updateProgressMutation, mutationState] = useUpdateLessonProgressMutation();
+    updateProgress = updateProgressMutation;
+    loading = mutationState.isLoading;
+  } catch (e) {
+    console.error('RTK Query error in InteractiveQuizButton:', e);
+    return <button disabled style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'not-allowed' }}>Error loading quiz</button>;
+  }
 
   const handleComplete = async () => {
     if (currentLesson && currentLesson.userStats.completedExercises < currentLesson.userStats.totalExercises) {
