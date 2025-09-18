@@ -2,7 +2,7 @@
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
-    reactStrictMode: true,
+    reactStrictMode: false,
 
     pageExtensions: ["page.tsx", "page.ts", "tsx", "ts"],
 
@@ -10,10 +10,7 @@ const nextConfig = {
         ignoreDuringBuilds: true,
     },
 
-    // Optimize for development performance
-    swcMinify: true,
-    
-    // Let Next.js handle chunking - custom webpack config was creating massive vendors.js
+    // Note: swcMinify is default in Next.js 15, no need to specify
 };
 
 module.exports = nextConfig;

@@ -134,7 +134,6 @@ const HomePage: React.FC<HomePageProps> = ({ buildTime }) => {
           
           <Link 
             href="/lesson/language-models-intro"
-            onMouseEnter={handleLinkHover}
             style={{
               display: 'inline-block',
               backgroundColor: '#0366d6',
