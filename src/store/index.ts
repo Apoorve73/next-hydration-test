@@ -1,12 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { createWrapper } from 'next-redux-wrapper';
-import lessonReducer from './slices/lessonSlice';
+import { createWrapper, Context } from 'next-redux-wrapper';
+import { rootApi } from '../services/common/rootApi';
 
-export const makeStore = () =>
+export const makeStore = (ctx?: Context) =>
   configureStore({
     reducer: {
-      lesson: lessonReducer,
+      [rootApi.reducerPath]: rootApi.reducer,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        thunk: {
+          extraArgument: ctx,
+        },
+        serializableCheck: {
+          ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+        },
+      }).concat(rootApi.middleware),
     devTools: process.env.NODE_ENV !== 'production',
   });
 

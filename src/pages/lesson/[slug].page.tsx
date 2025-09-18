@@ -7,7 +7,7 @@ import InteractiveCodeBlock from '@/components/InteractiveCodeBlock';
 import QuizWidget from '@/components/QuizWidget';
 import InteractiveQuizButton from '@/components/InteractiveQuizButton';
 import { wrapper } from '@/store';
-import { setLessonData, type LessonData } from '@/store/slices/lessonSlice';
+import { lessonsAPI } from '@/services/Lessons';
 
 interface LessonPageProps {
   lesson: LessonContent;
@@ -197,31 +197,16 @@ export const getServerSideProps: GetServerSideProps = wrapper.getServerSideProps
       };
     }
 
-    // Fetch lesson data server-side and populate Redux store
+    // Prefetch lesson data server-side using RTK Query
     try {
-      // Mock server-side lesson data (in real app, this would come from your API/database)
-      const mockLessonData: LessonData = {
-        id: slug,
-        title: lesson.title,
-        progress: Math.floor(Math.random() * 40) + 60, // 60-100%
-        userStats: {
-          completedExercises: Math.floor(Math.random() * 3) + 2, // 2-4
-          totalExercises: 5,
-          timeSpent: Math.floor(Math.random() * 600) + 900, // 900-1500 seconds
-        },
-        recommendations: [
-          'Try the advanced tokenization exercise',
-          'Review transformer architecture concepts',
-          'Practice with the interactive code examples'
-        ],
-        lastAccessed: new Date().toISOString(),
-      };
-
-      // Dispatch the data to Redux store
-      store.dispatch(setLessonData(mockLessonData));
+      // This will populate the RTK Query cache on the server
+      await store.dispatch(lessonsAPI.endpoints.getLessonData.initiate(slug));
     } catch (error) {
-      console.error('Failed to fetch lesson data server-side:', error);
+      console.error('Failed to prefetch lesson data server-side:', error);
     }
+
+    // Wait for all running queries to complete
+    await Promise.all(store.dispatch(lessonsAPI.util.getRunningQueriesThunk()));
 
     return {
       props: {

@@ -1,17 +1,8 @@
-import React, { useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchLessonData } from '@/store/slices/lessonSlice';
+import React from 'react';
+import { useGetLessonDataQuery } from '@/services/Lessons';
 
 const ProgressTracker: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { currentLesson: data, loading, error } = useAppSelector((state) => state.lesson);
-
-  useEffect(() => {
-    // Only fetch if we don't have data yet (prevents refetch on hydration)
-    if (!data && !loading) {
-      dispatch(fetchLessonData());
-    }
-  }, [dispatch, data, loading]);
+  const { data, isLoading: loading, error } = useGetLessonDataQuery('language-models-intro');
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -68,7 +59,7 @@ const ProgressTracker: React.FC = () => {
         color: '#721c24'
       }}>
         <h4 style={{ margin: '0 0 8px 0' }}>⚠️ Error Loading Progress</h4>
-        <p style={{ margin: 0 }}>{error}</p>
+        <p style={{ margin: 0 }}>{error.toString()}</p>
       </div>
     );
   }

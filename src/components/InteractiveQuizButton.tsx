@@ -1,35 +1,48 @@
 import React from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { incrementCompletedExercises } from '@/store/slices/lessonSlice';
+import { useGetLessonDataQuery, useUpdateLessonProgressMutation } from '@/services/Lessons';
 
 interface InteractiveQuizButtonProps {
   onComplete?: () => void;
 }
 
 const InteractiveQuizButton: React.FC<InteractiveQuizButtonProps> = ({ onComplete }) => {
-  const dispatch = useAppDispatch();
+  const { data: currentLesson } = useGetLessonDataQuery('language-models-intro');
+  const [updateProgress, { isLoading: loading }] = useUpdateLessonProgressMutation();
 
-  const handleComplete = () => {
-    // Update Redux store when quiz is completed
-    dispatch(incrementCompletedExercises());
-    onComplete?.();
+  const handleComplete = async () => {
+    if (currentLesson && currentLesson.userStats.completedExercises < currentLesson.userStats.totalExercises) {
+      try {
+        await updateProgress({
+          lessonId: 'language-models-intro',
+          exerciseCompleted: true,
+        }).unwrap();
+        onComplete?.();
+      } catch (error) {
+        console.error('Failed to update progress:', error);
+        alert('Failed to update progress. Please try again.');
+      }
+    } else {
+      alert('All exercises completed for this lesson!');
+    }
   };
 
   return (
     <button
       onClick={handleComplete}
+      disabled={loading || (currentLesson && currentLesson.userStats.completedExercises >= currentLesson.userStats.totalExercises)}
       style={{
-        backgroundColor: '#28a745',
+        backgroundColor: loading ? '#6c757d' : '#28a745',
         color: 'white',
         border: 'none',
         padding: '8px 16px',
         borderRadius: '4px',
-        cursor: 'pointer',
+        cursor: loading ? 'not-allowed' : 'pointer',
         fontSize: '14px',
-        marginTop: '8px'
+        marginTop: '8px',
+        opacity: (loading || (currentLesson && currentLesson.userStats.completedExercises >= currentLesson.userStats.totalExercises)) ? 0.6 : 1,
       }}
     >
-      🎯 Complete Exercise (Updates Redux Store)
+      {loading ? '⏳ Updating...' : '🎯 Complete Exercise (RTK Query)'}
     </button>
   );
 };
