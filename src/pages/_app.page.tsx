@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { wrapper } from '@/store';
 
 function App({ Component, pageProps }: AppProps) {
-  const { store, props } = wrapper.useWrappedStore(pageProps);
+  const { store } = wrapper.useWrappedStore(pageProps);
   return (
     <>
       <Head>
@@ -123,7 +123,7 @@ function App({ Component, pageProps }: AppProps) {
       `}</style>
       
       <Provider store={store}>
-        <Component {...props.pageProps} />
+        <Component {...pageProps} />
       </Provider>
     </>
   );
