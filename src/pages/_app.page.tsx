@@ -1,10 +1,39 @@
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Provider } from 'react-redux';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { wrapper } from '@/store';
+import PageLoader from '@/components/PageLoader';
 
 function App({ Component, pageProps }: AppProps) {
-  const { store, props } = wrapper.useWrappedStore(pageProps);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  
+  // Only use Redux for lesson pages that need it
+  const needsRedux = router.pathname.startsWith('/lesson/');
+  const { store, props } = needsRedux ? wrapper.useWrappedStore(pageProps) : { store: null, props: pageProps };
+
+  useEffect(() => {
+    const handleStart = (url: string) => {
+      // Only show loader for lesson page transitions
+      if (url.includes('/lesson/')) {
+        setLoading(true);
+      }
+    };
+    
+    const handleComplete = () => setLoading(false);
+
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
+    };
+  }, [router]);
   
   return (
     <>
@@ -123,9 +152,17 @@ function App({ Component, pageProps }: AppProps) {
         }
       `}</style>
       
-      <Provider store={store}>
-        <Component {...pageProps} />
-      </Provider>
+      {needsRedux && store ? (
+        <Provider store={store}>
+          {loading && <PageLoader />}
+          <Component {...pageProps} />
+        </Provider>
+      ) : (
+        <>
+          {loading && <PageLoader />}
+          <Component {...pageProps} />
+        </>
+      )}
     </>
   );
 }

@@ -1,7 +1,19 @@
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { GetStaticProps } from 'next';
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+  buildTime: string;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ buildTime }) => {
+  const router = useRouter();
+
+  const handleLinkHover = () => {
+    // Preload the lesson page on hover for faster navigation
+    router.prefetch('/lesson/language-models-intro');
+  };
   return (
     <div style={{ 
       maxWidth: '800px', 
@@ -122,6 +134,7 @@ const HomePage: React.FC = () => {
           
           <Link 
             href="/lesson/language-models-intro"
+            onMouseEnter={handleLinkHover}
             style={{
               display: 'inline-block',
               backgroundColor: '#0366d6',
@@ -130,7 +143,16 @@ const HomePage: React.FC = () => {
               borderRadius: '6px',
               textDecoration: 'none',
               fontSize: '14px',
-              fontWeight: '500'
+              fontWeight: '500',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#0256cc';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#0366d6';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
             Start Lesson →
@@ -194,6 +216,17 @@ const HomePage: React.FC = () => {
       </div>
     </div>
   );
+};
+
+// Static generation for better performance
+export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
+  return {
+    props: {
+      buildTime: new Date().toISOString(),
+    },
+    // Revalidate every hour in production
+    revalidate: 3600,
+  };
 };
 
 export default HomePage;
